@@ -1,0 +1,21 @@
+# Implantação no Render. Não coloque senhas ou chaves neste arquivo.
+# O plano é gratuito; confira a disponibilidade e as condições na sua conta.
+services:
+  - type: web
+    name: atelie-privado
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev --no-fund && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/session
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: NODE_ENV
+        value: production
+      - key: IMAGE_MODEL
+        value: gpt-image-1.5
+      - key: SITE_PASSWORD
+        sync: false
+      - key: IMAGE_API_KEY
+        sync: false
