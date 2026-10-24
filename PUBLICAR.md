@@ -1,59 +1,64 @@
-# Colocar o Ateliê no ar, sem comprar domínio
+# Colocar o Ateliê no ar pelo Railway
 
-A opção preparada é o **Render**, com um serviço web Node.js e endereço HTTPS fornecido pela plataforma. O código continua no seu repositório privado do GitHub e o uso do site exige sua senha. A página de entrada é acessível pela internet; apenas os pedidos de imagem exigem autenticação.
+O **Railway** é a alternativa preparada ao Render. Ele fornece um endereço HTTPS sem você precisar comprar um domínio. O estúdio continua protegido por sua senha.
 
-## O que já está preparado
+O `Dockerfile` da raiz é detectado automaticamente: não precisa definir comandos de instalação ou criar um arquivo `railway.json`. A aplicação reconhece o endereço fornecido em `RAILWAY_PUBLIC_DOMAIN`.
 
-- `render.yaml` descreve a instalação e a inicialização no Render, incluindo a solicitação das duas variáveis privadas.
-- A aplicação reconhece automaticamente `RENDER_EXTERNAL_URL`, a URL fornecida pelo Render. Você não precisa configurar um domínio nem copiar a URL para outra variável no primeiro deploy.
-- Os cookies são seguros em produção e a chave da OpenAI fica somente no servidor.
-- O arquivo pede o plano `free`. Confira a disponibilidade e as condições atuais na sua conta antes de confirmar a criação; não é necessário selecionar um plano pago para seguir esta configuração.
+## 1. Conectar o projeto
 
-## Passos para publicar
+1. Acesse [Railway](https://railway.com/) e escolha entrar com **GitHub**, usando a conta do repositório `js146555-lang/privado`.
+2. Confira o plano, eventuais créditos de teste e as condições na sua conta. A hospedagem pode ter custo. Se for pedido pagamento, confira os valores antes de confirmar.
+3. Escolha **New Project → Deploy from GitHub repo** e selecione `privado`. Autorize o aplicativo GitHub do Railway a acessar esse repositório, caso seja solicitado.
+4. Escolha **Add Variables**, em vez de iniciar imediatamente, para configurar o serviço antes da primeira implantação. Use a branch **main** e a raiz do repositório.
 
-1. **Confirmar o projeto no GitHub.** Todos os arquivos do projeto precisam estar em uma branch do repositório `js146555-lang/privado`, incluindo `render.yaml` e `package-lock.json`. Não envie `.env`, `node_modules`, `dist`, capturas de teste ou credenciais. Confira a presença dos arquivos no GitHub antes de conectar a hospedagem.
-2. Crie sua conta em [Render](https://dashboard.render.com/) usando seu GitHub. Autorize o Render a acessar somente o repositório `privado` pelo aplicativo GitHub do próprio Render. Não é necessário criar nem compartilhar um token pessoal aqui no chat.
-3. No painel, escolha **New → Blueprint**, conecte `js146555-lang/privado` e selecione a branch em que o código foi enviado. Use o arquivo `render.yaml` da raiz.
-4. Preencha os campos solicitados **diretamente no painel do Render**:
-   - `SITE_PASSWORD`: sua senha exclusiva para entrar no site, com 8 a 256 caracteres.
-   - `IMAGE_API_KEY`: sua chave criada em [OpenAI Platform](https://platform.openai.com/api-keys), com saldo e acesso ao modelo de imagem.
-5. Confira o serviço, o plano e as condições de cobrança mostradas no painel e confirme a implantação.
-6. Aguarde o estado de serviço ativo e abra o endereço HTTPS que o próprio Render apresentar. Não há um endereço criado antes dessa etapa, e o nome exato depende da disponibilidade na plataforma.
-7. Entre com sua senha. Teste a criação de uma imagem, depois envie uma imagem para editar e baixe os resultados. Esses pedidos reais usam os créditos da API da OpenAI.
+Se o repositório não aparecer, revise o acesso em **Account → General Settings → Account Integrations → GitHub → Edit Scope**. Entrar na conta e autorizar o GitHub exige sua participação; não compartilhe senhas de conta ou códigos de confirmação no chat.
 
-Não compartilhe a senha nem a chave neste chat. As configurações do ambiente do Codex não são copiadas automaticamente para o Render: as variáveis da hospedagem precisam ser preenchidas lá também.
+## 2. Configurar a senha
 
-## Se o painel pedir os comandos manualmente
+Na aba **Variables**, adicione:
 
-Crie um **Web Service**, com **Node** como runtime e os seguintes valores:
-
-| Campo | Valor |
+| Nome | Valor |
 | --- | --- |
-| Root directory | deixe vazio |
-| Build command | `npm ci --include=dev --no-fund && npm run build` |
-| Start command | `npm start` |
-| Health check path | `/api/session` |
-| `NODE_VERSION` | `24.19.0` |
-| `NODE_ENV` | `production` |
-| `IMAGE_MODEL` | `gpt-image-1.5` |
-| `SITE_PASSWORD` | sua senha, preenchida somente no painel |
-| `IMAGE_API_KEY` | sua chave, preenchida somente no painel |
+| `SITE_PASSWORD` | sua senha do estúdio, com 8 a 256 caracteres |
+| `PORT` | `3000` |
+| `IMAGE_API_KEY` | sua chave de API da OpenAI, quando quiser habilitar imagens reais |
 
-O Render define `PORT` e `RENDER_EXTERNAL_URL`. Não fixe `PORT=3000` nem defina `PUBLIC_ORIGIN` no primeiro deploy. Mantenha somente uma instância: sessões e limites ficam na memória dela.
+Você pode adicionar `IMAGE_API_KEY` depois: sem ela, consegue entrar e explorar a interface, mas criar e editar imagens ficam indisponíveis. Preencha senha e chave apenas nas variáveis privadas do painel, nunca nos arquivos do GitHub.
 
-## Custos e limitações
+Não precisa configurar `NODE_VERSION`, `NODE_ENV` ou comandos de build: o Dockerfile já usa Node.js 24 e inicia em produção. Não defina `PUBLIC_ORIGIN` no primeiro deploy. A configuração privada do ambiente Codex não é transferida automaticamente para o Railway.
 
-- A hospedagem e a API de imagens são serviços separados. Mesmo com hospedagem gratuita, gerar e editar imagens usa uma API paga; uma assinatura do ChatGPT não inclui esses créditos.
-- Planos gratuitos podem pausar o serviço e impor limites. A primeira abertura pode demorar, e reinícios encerram sessões. Confira as regras atuais no painel; o projeto não garante disponibilidade contínua.
-- O estúdio não é uma galeria permanente: resultados ficam na memória da página e desaparecem ao sair ou recarregar. Baixe as imagens que deseja guardar.
-- Uma falha de conexão ou timeout não garante que um pedido de imagem deixou de ser cobrado. Evite reenviar repetidamente.
+## 3. Criar o endereço e publicar
 
-## Se algo não abrir
+1. Abra **Settings → Networking → Public Networking → Generate Domain** no serviço.
+2. Configure/confirme **3000** como porta de destino (*target port*), igual à variável `PORT`.
+3. Se configurar uma verificação de saúde, use **`/api/session`**. Ela não gera imagens nem consome créditos da API.
+4. Depois de gerar o domínio, aplique as alterações pendentes pelo botão **Deploy**.
+5. Aguarde a implantação ficar ativa, abra o endereço HTTPS apresentado pelo Railway e entre com sua senha.
 
-- Nos logs do serviço, procure a mensagem de que o Ateliê iniciou. Nunca copie logs que contenham credenciais.
-- Se aparecer erro de versão do Node, confirme `NODE_VERSION=24.19.0` e refaça a implantação.
-- Se a aplicação recusar a inicialização, confirme a senha de 8 a 256 caracteres e a presença de `RENDER_EXTERNAL_URL`. Em uma instalação fora do Render, defina `PUBLIC_ORIGIN` com a URL HTTPS exata.
-- Se o login funcionar, mas não houver geração, confira a chave, o saldo e as permissões de imagem na conta da OpenAI.
-- Se adicionar um domínio próprio depois, configure `PUBLIC_ORIGIN` com a nova origem HTTPS, sem barra final, e reinicie o serviço.
+A aplicação precisa da senha e do domínio para iniciar em produção. Se uma tentativa tiver começado antes de configurá-los, complete essas duas etapas e faça **Redeploy**. O nome exato do endereço é definido pela hospedagem; este guia não significa que um site já foi publicado.
 
-Publicar o ambiente do Codex não cria o serviço do Render. Esta configuração prepara o projeto para implantação; a conta, a conexão com o GitHub, as credenciais e a criação do serviço são etapas externas.
+## 4. Habilitar imagens reais
+
+Crie uma chave em [OpenAI Platform](https://platform.openai.com/api-keys), com saldo e acesso ao modelo de imagens. Preencha `IMAGE_API_KEY` no serviço e aplique a alteração com uma nova implantação.
+
+Faça uma geração e uma edição de teste. Esses pedidos são cobrados pela OpenAI separadamente da hospedagem e da assinatura do ChatGPT. O modelo padrão é `gpt-image-1.5`, configurável por `IMAGE_MODEL`.
+
+Se o Railway mostrar **Limited Trial**, a saída de rede pode estar limitada e impedir chamadas à OpenAI. Confira a [verificação da conta](https://railway.com/verify) e as condições do plano antes de contratar qualquer recurso. A disponibilidade de teste gratuito depende da conta.
+
+## Se algo não funcionar
+
+- **Servidor recusa iniciar:** confirme a senha, o domínio gerado e as alterações aplicadas.
+- **Site não abre:** confirme `PORT=3000` e o domínio direcionado à porta 3000.
+- **Login funciona, mas não gera imagens:** confira a chave, o saldo, o acesso ao modelo e eventuais limites de rede do plano.
+- **Domínio próprio:** defina `PUBLIC_ORIGIN` com sua origem HTTPS exata, sem barra final, e reimplante. Essa variável tem precedência sobre o endereço automático.
+
+Mantenha somente uma instância: sessões e limites ficam na memória e reinícios encerram as sessões. Baixe os resultados que deseja guardar; eles desaparecem da página ao sair ou recarregar. Evite reenviar repetidamente pedidos com timeout, pois podem ter sido processados e cobrados.
+
+## Referências
+
+- [Publicar um repositório GitHub no Railway](https://docs.railway.com/quick-start#deploying-your-project---from-github)
+- [Detecção de Dockerfile](https://docs.railway.com/builds/dockerfiles)
+- [Variáveis fornecidas pela hospedagem](https://docs.railway.com/variables/reference#railway-provided-variables)
+- [Alternativa: instruções do Render](PUBLICAR-RENDER.md)
+
+Publicar o ambiente do Codex não cria um serviço no Railway. A conta, a conexão com o GitHub, as variáveis privadas e a implantação são etapas separadas.

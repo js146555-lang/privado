@@ -38,7 +38,7 @@ Cada envio solicita **uma imagem** e pode gerar cobrança na OpenAI. Há no máx
 
 ## Publicar em um site privado
 
-**Sem domínio ou hospedagem?** A implantação no Render já está preparada em `render.yaml`. Siga o [passo a passo de publicação](PUBLICAR.md): o Render fornece um endereço HTTPS e o acesso ao estúdio continua protegido por senha.
+**Sem domínio ou hospedagem?** Siga o [passo a passo de publicação no Railway](PUBLICAR.md), usando o Dockerfile já preparado e um endereço HTTPS fornecido pela hospedagem. A [alternativa pelo Render](PUBLICAR-RENDER.md) continua disponível em `render.yaml`. O estúdio exige sua senha em ambos os casos.
 
 Você pode hospedar em um serviço que execute Node.js, ou usar o Dockerfile incluído. É necessário um servidor: uma hospedagem que sirva apenas HTML estático não executa esta aplicação.
 
@@ -52,7 +52,7 @@ O servidor precisa de saída HTTPS para `api.openai.com`; a instalação usa `re
 
 O código estar pronto neste ambiente não publica o site nem configura um domínio. Salvar/publicar o ambiente do Codex também não equivale a hospedar a aplicação na internet.
 
-No Render, `RENDER_EXTERNAL_URL` é reconhecida automaticamente quando `PUBLIC_ORIGIN` não foi definida. Defina `PUBLIC_ORIGIN` apenas se usar uma origem própria, como um domínio personalizado.
+No Railway, gere o domínio público para que `RAILWAY_PUBLIC_DOMAIN` seja reconhecida automaticamente. No Render, a variável equivalente é `RENDER_EXTERNAL_URL`. Defina `PUBLIC_ORIGIN` se usar uma origem própria, como um domínio personalizado; ela tem precedência sobre os endereços das hospedagens.
 
 ## Privacidade e acesso
 

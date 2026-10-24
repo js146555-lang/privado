@@ -7,14 +7,15 @@ import { createApp } from './app.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const production = process.argv.includes('--production') || process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT || 3000);
-// Render supplies its own HTTPS address, so the first deploy needs no custom domain.
+// Hosting-provided HTTPS addresses let the first deploy work without a custom domain.
 // An explicit PUBLIC_ORIGIN takes precedence when a custom domain is configured.
-const origin = process.env.PUBLIC_ORIGIN || process.env.RENDER_EXTERNAL_URL || '';
+const origin = process.env.PUBLIC_ORIGIN || process.env.RENDER_EXTERNAL_URL
+  || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '');
 if (origin && (!/^https?:\/\//.test(origin) || new URL(origin).origin !== origin)) throw new Error('PUBLIC_ORIGIN deve ser uma origem exata, como https://imagens.exemplo.com, sem barra final.');
 const proxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
 if (!Number.isInteger(proxyHops) || proxyHops < 0 || proxyHops > 5) throw new Error('TRUST_PROXY_HOPS deve ser um inteiro de 0 a 5.');
 if (process.env.SITE_PASSWORD && (process.env.SITE_PASSWORD.length < 8 || process.env.SITE_PASSWORD.length > 256)) throw new Error('SITE_PASSWORD deve ter entre 8 e 256 caracteres.');
-if (production && (!process.env.SITE_PASSWORD || !origin.startsWith('https://'))) throw new Error('Produção requer SITE_PASSWORD e uma origem HTTPS (PUBLIC_ORIGIN ou RENDER_EXTERNAL_URL). Consulte README.md.');
+if (production && (!process.env.SITE_PASSWORD || !origin.startsWith('https://'))) throw new Error('Produção requer SITE_PASSWORD e uma origem HTTPS (PUBLIC_ORIGIN, RENDER_EXTERNAL_URL ou RAILWAY_PUBLIC_DOMAIN). Consulte PUBLICAR.md.');
 
 const app = createApp({ secureCookies: production, publicOrigin: origin, trustProxyHops: proxyHops });
 app.use((_req, res, next) => {
